@@ -23,6 +23,14 @@
 
 ## API
 
+### 发起请求
+
+[发起请求](https://mp.weixin.qq.com/debug/wxadoc/dev/api/network-request.html)
+
+### 小程序登录
+
+[小程序登录](https://mp.weixin.qq.com/debug/wxadoc/dev/api/api-login.html)
+
 ### 加速统计
 
 [加速度计](https://mp.weixin.qq.com/debug/wxadoc/dev/api/accelerometer.html)

@@ -1,46 +1,42 @@
+import { getConfigValue } from './services/api';
+import regeneratorRuntime from './libs/regenerator-runtime';
+
 // app.js
 App({
   onLaunch: function () {
-    var that = this;
+    const that = this;
     // 登录
     that.login();
-    // 获取商城名称
     that.getConfigValue({key: 'mallName'});
-    that.getConfigValue({key: 'recharge_amount_min'});
-    /**
-     * 获取系统中设置的积分赠送规则参数 https://api.it120.cc/jfapi/score/send/rule
-     * @param {code} 编码
-     * @returns {confine: 满足该条件才赠送, score: 赠送的积分数量}
-     */
+    // 获取商城名称
+    getConfigValue({key: 'mallName'}).then((res) => {
+      if (res.data.code == 0) {
+        wx.setStorageSync('mallName', res.data.data.value);
+      }
+    });
+    getConfigValue({key: 'recharge_amount_min'}).then((res) => {
+      if (res.data.code == 0) {
+        that.globalData.recharge_amount_min = res.data.data.value;
+      }
+    });
+    that.scoreSendRule({code: 'goodReputation'});
+  },
+  async getConfigValue (param) {
+
+  },
+  /**
+   * 获取系统中设置的积分赠送规则参数 https://www.it120.cc/apis/112
+   * @param {code} 编码
+   * @returns {confine: 满足该条件才赠送, score: 赠送的积分数量}
+   */
+  scoreSendRule (param) {
+    const that = this;
     wx.request({
       url: that.globalData.subDomain + '/score/send/rule',
-      data: {
-        code: 'goodReputation'
-      },
-      success: function (res) {
-        if (res.data.code == 0) {
-          that.globalData.order_reputation_score = res.data.data[0].score;
-        }
-      }
-    })
-  },
-  getConfigValue (param) {
-    const that = this;
-    /**
-     * 系统参数设置 (https://www.it120.cc/apis/5)
-     * 
-     * @param {key} 设置的系统参数编码
-     * @returns {value: 该系统参数的值, remark: 该系统参数的备注说明}
-     * 
-     */
-    wx.request({
-      url: that.globalData.domain + '/config/get-value',
       data: param,
       success: function (res) {
         if (res.data.code == 0) {
-          if (param.key == 'mallName') {
-            wx.setStorageSync('mallName', res.data.data.value);
-          }
+          that.globalData.order_reputation_score = res.data.data[0].score;
         }
       }
     })
@@ -65,6 +61,12 @@ App({
     }
     wx.login({
       success: function (res) {
+        /**
+         * 小程序登录获取Token https://www.it120.cc/apis/20
+         * 小程序登录，获取到 token 后可保存到本地存储，以后用该 token 进行相关用户授权接口的调用
+         * @param {code} 微信登录接口返回的 code 参数数据
+         * @param {type} 1 服务号 2 小程序，不传默认为2
+         */
         wx.request({
           url: that.globalData.domain + '/user/wxapp/login',
           data: {
@@ -78,7 +80,8 @@ App({
             }
             if (res.data.code != 0) {
               // 登录错误
-              wx.hideLoading();
+              wx.hideLoading(); // 隐藏 loading 提示框
+              // 显示模态弹窗
               wx.showModal({
                 title: '提示',
                 content: '无法登录，请重试',
@@ -102,7 +105,15 @@ App({
           success: function (res) {
             var iv = res.iv;
             var encryptedData = res.encryptedData;
-            // 下面开始调用注册接口
+            /**
+             * 详细信息注册 https://www.it120.cc/apis/19
+             * 对接微信小程序，实现用户简单注册、详细注册、登录获取token功能；配套的后台用户管理列表，
+             * 免除您开发接口及后台管理的工作量
+             * @param {code} 微信登录接口返回的 code 参数数据
+             * @param {encryptedData} 微信登录接口返回的 加密用户信息
+             * @param {iv} 微信登录接口返回的加密偏移数据
+             * @param {postJsonString} 注册用户的扩展数据，必须是 json 格式
+             */
             wx.request({
               url: that.globalData.subDomain + '/user/wxapp/register/complex',
               data: {
