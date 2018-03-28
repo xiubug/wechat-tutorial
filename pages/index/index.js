@@ -1,4 +1,8 @@
-//index.js
+/**
+ * index.js
+ */
+import regeneratorRuntime from '../../libs/regenerator-runtime';
+import { getBannerList } from '../../services/api';
 //获取应用实例
 var app = getApp()
 Page({
@@ -20,18 +24,18 @@ Page({
     coupons: [],
     searchInput: '',
   },
-
-  tabClick: function (e) {
-    this.setData({
+  tabClick(e) {
+    const that = this;
+    that.setData({
       activeCategoryId: e.currentTarget.id
     });
-    this.getGoodsList(this.data.activeCategoryId);
+    that.getGoodsList(that.data.activeCategoryId);
   },
   //事件处理函数
-  swiperchange: function(e) {
-      //console.log(e.detail.current)
-       this.setData({  
-        swiperCurrent: e.detail.current  
+  swiperchange(e) {
+    const that = this;
+    that.setData({  
+      swiperCurrent: e.detail.current  
     })  
   },
   toDetailsTap:function(e){
@@ -60,8 +64,8 @@ Page({
     // console.log('e.detail.scrollTop:'+e.detail.scrollTop) ;
     // console.log('scrollTop:'+scrollTop)
   },
-  onLoad: function () {
-    var that = this
+  onLoad() {
+    const that = this
     wx.setNavigationBarTitle({
       title: wx.getStorageSync('mallName')
     })
@@ -74,25 +78,9 @@ Page({
       })
     })
     */
-    wx.request({
-      url: app.globalData.subDomain + '/banner/list',
-      data: {
-        key: 'mallName'
-      },
-      success: function(res) {
-        if (res.data.code == 404) {
-          wx.showModal({
-            title: '提示',
-            content: '请在后台添加 banner 轮播图片',
-            showCancel: false
-          })
-        } else {
-          that.setData({
-            banners: res.data.data
-          });
-        }
-      }
-    })
+
+    that.getBannerList({key: 'mallName'});
+
     wx.request({
       url: app.globalData.subDomain +'/shop/goods/category/all',
       success: function(res) {
@@ -109,8 +97,23 @@ Page({
         that.getGoodsList(0);
       }
     })
-    that.getCoupons ();
-    that.getNotice ();
+    that.getCoupons();
+    that.getNotice();
+  },
+  async getBannerList(params) {
+    const that = this;
+    const res = await getBannerList(params);
+    if (res.data.code == 404) {
+      wx.showModal({
+        title: '提示',
+        content: '请在后台添加 banner 轮播图片',
+        showCancel: false
+      })
+    } else {
+      that.setData({
+        banners: res.data.data
+      });
+    }
   },
   getGoodsList: function (categoryId) {
     if (categoryId == 0) {

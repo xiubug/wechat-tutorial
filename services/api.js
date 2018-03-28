@@ -1,4 +1,4 @@
-import { promiseGet } from './xhr/fetch';
+import { promiseGet, promisePost } from './xhr/fetch';
 import { subDomain1 } from '../utils/constants';
 
 /**
@@ -23,7 +23,7 @@ const scoreSendRule = (params) => promiseGet(params, '/score/send/rule');
  * @param {code} 微信登录接口返回的 code 参数数据
  * @param {type} 1 服务号 2 小程序，不传默认为2
  */
-const userWxappLogin = (params) => promiseGet(params, '/user/wxapp/login', subDomain1); 
+const userWxappLogin = (params) => promisePost(params, '/user/wxapp/login', subDomain1); 
 
 /**
  * 检测登录token是否有效 https://www.it120.cc/apis/62
@@ -42,12 +42,20 @@ const userCheckToken = (params) => promiseGet(params, '/user/check-token');
  * @param {iv} 微信登录接口返回的加密偏移数据
  * @param {postJsonString} 注册用户的扩展数据，必须是 json 格式
  */
-const userRegisterComplex = (params) => promiseGet(params, '/user/wxapp/register/complex');
+const userRegisterComplex = (params) => promisePost(params, '/user/wxapp/register/complex');
+
+/**
+ * 详细信息注册 https://www.it120.cc/apis/28
+ * 后台维护管理Banner，APP通过改接口进行展示；可自定义设置Banner类型，以便灵活设置 banner 的跳转以及链接方式。
+ * @param {type} Banner类型，后台自定义
+ */
+const getBannerList = (params) => promiseGet(params, '/banner/list');
 
 module.exports = {
   getConfigValue,
   scoreSendRule,
   userWxappLogin,
   userCheckToken,
-  userRegisterComplex
+  userRegisterComplex,
+  getBannerList
 };

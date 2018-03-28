@@ -48,15 +48,17 @@ const promiseGet = (params, url, header={}, domain=subDomain) => {
  * @param {domain} 域名
  * 
  */
-const promisePost = (params, url, header={}, domain=subDomain) => {
+const promisePost = (params, url, header={'content-type': 'application/x-www-form-urlencoded'}, domain=subDomain) => {
   if (typeof header == 'string') {
     domain = header;
-    header = {};
+    header = {
+      'content-type': 'application/x-www-form-urlencoded'
+    };
   }
   const setting = {
-    url: domain + url, //默认ajax请求地址
-    method: 'POST', //请求的方式
-    data: params, //发给服务器的数据
+    url: domain + url, // 默认ajax请求地址
+    method: 'POST', // 请求的方式
+    data: params, // 发给服务器的数据
     header: header
   };
   return fetch(setting);
