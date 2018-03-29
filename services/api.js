@@ -45,11 +45,50 @@ const userCheckToken = (params) => promiseGet(params, '/user/check-token');
 const userRegisterComplex = (params) => promisePost(params, '/user/wxapp/register/complex');
 
 /**
- * 详细信息注册 https://www.it120.cc/apis/28
+ * App Banner管理接口 https://www.it120.cc/apis/28
  * 后台维护管理Banner，APP通过改接口进行展示；可自定义设置Banner类型，以便灵活设置 banner 的跳转以及链接方式。
  * @param {type} Banner类型，后台自定义
  */
 const getBannerList = (params) => promiseGet(params, '/banner/list');
+
+/**
+ * 商品类别无限级接口 https://www.it120.cc/apis/36
+ * 接口获取后台维护的商品分类数据，支持无限级分类
+ */
+const shopCategoryAll = (params) => promiseGet(params, '/shop/goods/category/all');
+
+/**
+ * 商城商品管理接口 https://www.it120.cc/apis/37
+ * 获取后台维护的商品列表，用于 app 展示
+ */
+const shopGoodsList = (params) => promiseGet(params, '/shop/goods/list');
+
+/**
+ * 优惠券接口 https://www.it120.cc/apis/70
+ * 获取当前可领用的优惠券数据列表，针对每个优惠券用户可做领取操作，查看并管理自己领取到的优惠券
+ * @param {type} 优惠券类型
+ * @param {refId} 优惠券使用对象
+ */
+const discountsCoupons = (params) => promiseGet(params, '/discounts/coupons');
+
+/**
+ * 领取优惠券 https://www.it120.cc/apis/71
+ * 获取当前可领用的优惠券数据列表，针对每个优惠券用户可做领取操作，查看并管理自己领取到的优惠券
+ * @param {id} 优惠券ID
+ * @param {pwd} 口令红包必须传
+ * @param {token} 调用登录接口获取的登录凭证
+ * @param {detect} 如果传了该参数，并且是 true ，则不获取优惠券，而是检测当前用户是否可以获取
+ */
+const fetchDiscounts = (params) => promiseGet(params, '/discounts/fetch');
+
+/**
+ * 平台公告模块 https://www.it120.cc/apis/6
+ * 公告管理模块，用于客户端调用公告数据进行展示
+ * @param {page} 获取第几页的数据，不填写默认取第一页
+ * @param {pageSize} 每页显示的条数，不填写默认获取50条
+ * @param {type} 公告类型
+ */
+const getNoticeList = (params) => promiseGet(params, '/notice/list');
 
 module.exports = {
   getConfigValue,
@@ -57,5 +96,10 @@ module.exports = {
   userWxappLogin,
   userCheckToken,
   userRegisterComplex,
-  getBannerList
+  getBannerList,
+  shopCategoryAll,
+  shopGoodsList,
+  discountsCoupons,
+  fetchDiscounts,
+  getNoticeList
 };

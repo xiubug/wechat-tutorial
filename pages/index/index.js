@@ -2,9 +2,9 @@
  * index.js
  */
 import regeneratorRuntime from '../../libs/regenerator-runtime';
-import { getBannerList } from '../../services/api';
+import { getBannerList, shopCategoryAll, shopGoodsList, discountsCoupons, fetchDiscounts, getNoticeList } from '../../services/api';
 //获取应用实例
-var app = getApp()
+const app = getApp();
 Page({
   data: {
     indicatorDots: true,
@@ -38,28 +38,29 @@ Page({
       swiperCurrent: e.detail.current  
     })  
   },
-  toDetailsTap:function(e){
+  toDetailsTap(e) {
     wx.navigateTo({
       url:"/pages/goods-details/index?id="+e.currentTarget.dataset.id
     })
   },
-  tapBanner: function(e) {
+  tapBanner(e) {
     if (e.currentTarget.dataset.id != 0) {
       wx.navigateTo({
         url: "/pages/goods-details/index?id=" + e.currentTarget.dataset.id
       })
     }
   },
-  bindTypeTap: function(e) {
+  bindTypeTap(e) {
      this.setData({  
         selectCurrent: e.index  
     })  
   },
-  scroll: function (e) {
+  scroll(e) {
     //  console.log(e) ;
-    var that = this,scrollTop=that.data.scrollTop;
+    const that = this;
+    const scrollTop = that.data.scrollTop;
     that.setData({
-      scrollTop:e.detail.scrollTop
+      scrollTop: e.detail.scrollTop
     })
     // console.log('e.detail.scrollTop:'+e.detail.scrollTop) ;
     // console.log('scrollTop:'+scrollTop)
@@ -79,27 +80,18 @@ Page({
     })
     */
 
+    // App Banner管理接口
     that.getBannerList({key: 'mallName'});
 
-    wx.request({
-      url: app.globalData.subDomain +'/shop/goods/category/all',
-      success: function(res) {
-        var categories = [{id:0, name:"全部"}];
-        if (res.data.code == 0) {
-          for (var i = 0; i < res.data.data.length; i++) {
-            categories.push(res.data.data[i]);
-          }
-        }
-        that.setData({
-          categories:categories,
-          activeCategoryId:0
-        });
-        that.getGoodsList(0);
-      }
-    })
-    that.getCoupons();
-    that.getNotice();
+    // 商品类别无限级接口
+    that.shopCategoryAll({});
+
+    // 优惠券接口
+    that.getCoupons({type: ''});
+
+    that.getNotice({pageSize: 5});
   },
+  // App Banner管理接口
   async getBannerList(params) {
     const that = this;
     const res = await getBannerList(params);
@@ -115,146 +107,139 @@ Page({
       });
     }
   },
-  getGoodsList: function (categoryId) {
-    if (categoryId == 0) {
-      categoryId = "";
+  // 商品类别无限级接口
+  async shopCategoryAll(params) {
+    const that = this;
+    const res = await shopCategoryAll(params);
+    let categories = [{id:0, name:"全部"}];
+    if (res.data.code == 0) {
+      for (let i = 0; i < res.data.data.length; i++) {
+        categories.push(res.data.data[i]);
+      }
     }
-    console.log(categoryId)
-    var that = this;
-    wx.request({
-      url: app.globalData.subDomain +'/shop/goods/list',
-      data: {
-        categoryId: categoryId,
-        nameLike: that.data.searchInput
-      },
-      success: function(res) {
-        that.setData({
-          goods:[],
-          loadingMoreHidden:true
-        });
-        var goods = [];
-        if (res.data.code != 0 || res.data.data.length == 0) {
-          that.setData({
-            loadingMoreHidden:false,
-          });
-          return;
-        }
-        for(var i=0;i<res.data.data.length;i++){
-          goods.push(res.data.data[i]);
-        }
-        that.setData({
-          goods:goods,
-        });
-      }
-    })
+    that.setData({
+      categories: categories,
+      activeCategoryId: 0
+    });
+
+    // 商城商品管理接口
+    that.getGoodsList(0);
   },
-  getCoupons: function () {
-    var that = this;
-    wx.request({
-      url: app.globalData.subDomain + '/discounts/coupons',
-      data: {
-        type: ''
-      },
-      success: function (res) {
-        if (res.data.code == 0) {
-          that.setData({
-            hasNoCoupons: false,
-            coupons: res.data.data
-          });
-        }
-      }
-    })
+  // 商城商品管理接口
+  async getGoodsList (categoryId) {
+    if (categoryId == 0) {
+      categoryId = '';
+    }
+    const that = this;
+    const res = await shopGoodsList({categoryId: categoryId, nameLike: that.data.searchInput});
+    that.setData({
+      goods: [],
+      loadingMoreHidden: true
+    });
+    let goods = [];
+    if (res.data.code != 0 || res.data.data.length == 0) {
+      that.setData({
+        loadingMoreHidden: false
+      });
+      return;
+    }
+    for(let i = 0; i < res.data.data.length; i++){
+      goods.push(res.data.data[i]);
+    }
+    that.setData({
+      goods:goods,
+    });
   },
-  gitCoupon : function (e) {
-    var that = this;
-    wx.request({
-      url: app.globalData.subDomain + '/discounts/fetch',
-      data: {
-        id: e.currentTarget.dataset.id,
-        token: app.globalData.token
-      },
-      success: function (res) {
-        if (res.data.code == 20001 || res.data.code == 20002) {
-          wx.showModal({
-            title: '错误',
-            content: '来晚了',
-            showCancel: false
-          })
-          return;
-        }
-        if (res.data.code == 20003) {
-          wx.showModal({
-            title: '错误',
-            content: '你领过了，别贪心哦~',
-            showCancel: false
-          })
-          return;
-        }
-        if (res.data.code == 30001) {
-          wx.showModal({
-            title: '错误',
-            content: '您的积分不足',
-            showCancel: false
-          })
-          return;
-        }
-        if (res.data.code == 20004) {
-          wx.showModal({
-            title: '错误',
-            content: '已过期~',
-            showCancel: false
-          })
-          return;
-        }
-        if (res.data.code == 0) {
-          wx.showToast({
-            title: '领取成功，赶紧去下单吧~',
-            icon: 'success',
-            duration: 2000
-          })
-        } else {
-          wx.showModal({
-            title: '错误',
-            content: res.data.msg,
-            showCancel: false
-          })
-        }
-      }
-    })
+  // 优惠券接口
+  async getCoupons (params) {
+    const that = this;
+    const res = await discountsCoupons(params);
+    if (res.data.code == 0) {
+      that.setData({
+        hasNoCoupons: false,
+        coupons: res.data.data
+      });
+    }
   },
-  onShareAppMessage: function () {
+  // 领取优惠券
+  async gitCoupon(e) {
+    const that = this;
+    const res = await fetchDiscounts({id: e.currentTarget.dataset.id, token: app.globalData.token});
+    if (res.data.code == 20001 || res.data.code == 20002) {
+      wx.showModal({
+        title: '错误',
+        content: '来晚了',
+        showCancel: false
+      })
+      return;
+    }
+    if (res.data.code == 20003) {
+      wx.showModal({
+        title: '错误',
+        content: '你领过了，别贪心哦~',
+        showCancel: false
+      })
+      return;
+    }
+    if (res.data.code == 30001) {
+      wx.showModal({
+        title: '错误',
+        content: '您的积分不足',
+        showCancel: false
+      })
+      return;
+    }
+    if (res.data.code == 20004) {
+      wx.showModal({
+        title: '错误',
+        content: '已过期~',
+        showCancel: false
+      })
+      return;
+    }
+    if (res.data.code == 0) {
+      wx.showToast({
+        title: '领取成功，赶紧去下单吧~',
+        icon: 'success',
+        duration: 2000
+      })
+    } else {
+      wx.showModal({
+        title: '错误',
+        content: res.data.msg,
+        showCancel: false
+      })
+    }
+  },
+  onShareAppMessage () {
     return {
       title: wx.getStorageSync('mallName') + '——' + app.globalData.shareProfile,
       path: '/pages/index/index',
-      success: function (res) {
+      success (res) {
         // 转发成功
       },
-      fail: function (res) {
+      fail(res) {
         // 转发失败
       }
     }
   },
-  getNotice: function () {
-    var that = this;
-    wx.request({
-      url: app.globalData.subDomain + '/notice/list',
-      data: { pageSize :5},
-      success: function (res) {
-        if (res.data.code == 0) {
-          that.setData({
-            noticeList: res.data.data
-          });
-        }
-      }
-    })
+  // 平台公告模块
+  async getNotice(params) {
+    const that = this;
+    const res = await getNoticeList(params);
+    if (res.data.code == 0) {
+      that.setData({
+        noticeList: res.data.data
+      });
+    }
   },
-  listenerSearchInput: function (e) {
+  listenerSearchInput (e) {
     this.setData({
       searchInput: e.detail.value
     })
 
   },
-  toSearch : function (){
+  toSearch() {
     this.getGoodsList(this.data.activeCategoryId);
   }
 })
