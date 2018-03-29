@@ -1,6 +1,12 @@
 # wechat-tutorial
 微信小程序基础教程，由浅入深，一步一步学习微信小程序！
 
+## 特性
+
+- :rocket: **技术栈**：异步处理终极方案async/await
+- :gem: **优雅美观**：[微信小程序商城](https://github.com/EastWorld/wechat-app-mall)，感谢[@EastWorld](https://github.com/EastWorld)
+- :1234: **数据**：[api工厂](https://www.it120.cc/)
+
 ## 框架
 
 ### 注册程序
@@ -50,8 +56,5 @@
 2、vscode wxml 
 
 3、小程序助手
-
-参考：[微信小程序商城](https://github.com/EastWorld/wechat-app-mall)，感谢[@EastWorld](https://github.com/EastWorld)
-
 
 

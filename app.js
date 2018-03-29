@@ -3,7 +3,7 @@ import { getConfigValue, scoreSendRule, userWxappLogin, userCheckToken, userRegi
 
 // app.js
 App({
-  onLaunch: function () {
+  onLaunch () {
     const that = this;
     // 登录
     that.login();
@@ -78,7 +78,7 @@ App({
   registerUser() {
     const that = this;
     wx.login({
-      success: function (resLogin) {
+      success(resLogin) {
         const code = resLogin.code; // 微信登录接口返回的 code 参数，下面注册接口需要用到
         wx.getUserInfo({
           async success(resInfo) {
@@ -95,16 +95,16 @@ App({
       }
     })
   },
-  getUserInfo: function (cb) {
+  getUserInfo(cb) {
     const that = this;
     if (this.globalData.userInfo) {
       typeof cb == 'function' && cb(this.globalData.userInfo);
     } else {
       // 调用登录接口
       wx.login({
-        success: function () {
+        success () {
           wx.getUserInfo({
-            success: function (res) {
+            success (res) {
               that.globalData.userInfo = res.userInfo;
               typeof cb == 'function' && cb(that.globalData.userInfo);
             }

@@ -3,7 +3,7 @@
  */
 
 // 获取小程序实例
-var app = getApp();
+const app = getApp();
 
 Page({
   data: {
@@ -11,33 +11,33 @@ Page({
     angle: 0,
     userInfo: {}
   },
-  goToIndex: function () {
+  goToIndex() {
     wx.switchTab({
       url: '/pages/index/index'
     })
   },
-  onLoad: function () {
-    var that = this;
+  onLoad() {
+    const that = this;
     wx.setNavigationBarTitle({
       title: wx.getStorageSync('mallName')
     });
 
-    app.getUserInfo(function (userInfo) {
+    app.getUserInfo((userInfo) => {
       that.setData({
         userInfo: userInfo
       });
     });
   },
-  onReady: function () {
-    var that = this;
-    setTimeout(function() {
+  onReady() {
+    const that = this;
+    setTimeout(() => {
       that.setData({
         remind: ''
       });
     }, 1000);
 
-    wx.onAccelerometerChange(function (res) {
-      var angle = -(res.x * 30).toFixed(1);
+    wx.onAccelerometerChange((res) => {
+      let angle = -(res.x * 30).toFixed(1);
       if (angle > 14) {
         angle = 14;
       } else if (angle < -14) {
